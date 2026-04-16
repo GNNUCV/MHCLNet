@@ -18,7 +18,7 @@ from .base_backbone import BaseBackbone
 import torch
 import torch.nn as nn
 from mmengine.model import BaseModule
-from .modules.Mona_PathoMSF_v4_compat import Mona_PathoMSF
+from .modules.MHCLNet import MHCLAdapter
 
 class SwinBlock(BaseModule):
     """Swin Transformer block.
@@ -88,9 +88,8 @@ class SwinBlock(BaseModule):
         }
         self.norm2 = build_norm_layer(norm_cfg, embed_dims)[1]
         self.ffn = FFN(**_ffn_cfgs)
-        self.bpcfa1 = Mona_PathoMSF(embed_dims,inner_dim=64)
-        self.bpcfa2 = Mona_PathoMSF(embed_dims,inner_dim=64)
-        # self.mlsfa2 = Mona(embed_dims,factor=4)
+        self.mhcla1 = MHCLAdapter(embed_dims,inner_dim=64)
+        self.mhcla2 = MHCLAdapter(embed_dims,inner_dim=64)
     def forward(self, x, hw_shape):
 
         def _inner_forward(x):
@@ -99,13 +98,13 @@ class SwinBlock(BaseModule):
             x = self.attn(x, hw_shape)# 32,3136,128
             x = x + identity
 
-            x= self.bpcfa1(x, hw_shape)
+            x= self.mhcla1(x, hw_shape)
 
             identity = x
             x = self.norm2(x)
             x = self.ffn(x, identity=identity)#32,3126,128
 
-            x = self.bpcfa2(x, hw_shape)
+            x = self.mhcla2(x, hw_shape)
 
             return x
 
@@ -495,7 +494,7 @@ class SwinTransformer(BaseBackbone):
             m = self.stages[i]
             m.eval()
             for param_name, param in m.named_parameters():
-                if 'bpcfa' in param_name or 'bpcf' in param_name:
+                if 'mhcla' in param_name or 'mhcl' in param_name:
                     continue
                 param.requires_grad = False
             # for param in m.parameters():
