@@ -21,7 +21,7 @@
 
 ## Model
 
-- We now provide the model weights in the following [link](https://pan.baidu.com/s/1nt9LOERcNLfcv-i3EdVPow?pwd=mlsf).
+- We provide the original pretrained weights of Swin-L and the model weights of MHCLNet on the BACH and BRACS datasets. Please visit the following [link](https://pan.baidu.com/s/1nt9LOERcNLfcv-i3EdVPow?pwd=mlsf).
 
 ## Train
 
@@ -30,23 +30,48 @@
 - If you want to train or test the model, please replace the contents of `/MHCLNet/mmpretrain/models/backbones/swin_transformer.py` with those in `/MHCLNet/mmpretrain/models/backbones/swin_transformer_mhclnet.py`. 
 
 - Please make sure to back up the original SwinTransformer code in advance.
+- Before training, please update the pretrained weight path and dataset path in the configuration file. The dataset should be organized in the ImageNet format.
+  ```shell
+  Dataset_ROOT_DIR/
+    └──test/
+        ├── ...
+    └──train/
+    	├── benign
+    		├──0_0.png
+    		├──0_1.png
+    		├──0_2.png
+    		├──...
+    	├── malignant
+    		├── ...
+    		├── ...
+    		├── ...
+    	├── ...
+  ```
 
 - The model can be trained with the following command.
 
   ```shell
   export CUBLAS_WORKSPACE_CONFIG=":4096:8"
-  PORT=29209 CUDA_VISIBLE_DEVICES='0,1' bash ./tools/dist_train.sh ./swin_large_16xb64_in1k_BACH.py 2 --work-dir /home/xxx/swinTransformer_result/bach/workdir
+  PORT=29209 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_train.sh ./swin_large_16xb64_in1k_BACH.py 2 --work-dir ./swinTransformer_result/bach/workdir
   ```
 
 ## Test
 
-- The model can be tested with the following command.
+- The model can be tested with the following command,change the path below.
 
   ```shell
   export CUBLAS_WORKSPACE_CONFIG=":4096:8"
-  PORT=28756 CUDA_VISIBLE_DEVICES='0,1' bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BACH.py /home/xxx/swinTransformer_result/bach/workdir/epoch_xx.pth 2 --work-dir /home/xx/swinTransformer_result/bach/workdir/testxx
+  PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BACH.py ./swinTransformer_result/bach/workdir/epoch_x.pth 2 --work-dir ./swinTransformer_result/bach/workdir/testx
   ```
-
+- After downloading the fine-tuned MHCLNet model weights for the BACH and BRACS datasets, you can reproduce the results reported in the paper using the following evaluation command.
+### BACH
+  ```shell
+  PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BACH.py ./bach_96_38.pth 2 --work-dir ./swinTransformer_result/bach/workdir/test_bach
+  ```
+### BRACS
+  ```shell
+  PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BRACS.py ./bracs_64_38.pth 2 --work-dir ./swinTransformer_result/bach/workdir/test_bracs
+  ```
 - If you would like to learn more about the training or testing command arguments, please visit this [link](https://mmpretrain.readthedocs.io/zh-cn/latest/user_guides/train.html).
 
 ## Acknowledgement
