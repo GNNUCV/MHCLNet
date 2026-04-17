@@ -10,7 +10,7 @@
   conda create --name openmmlab python=3.8 -y
   conda activate openmmlab
   conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-  git clone https://github.com/BaoLongS111/MHCLNet.git
+  git clone https://github.com/GNNUCV/MHCLNet.git
   cd MHCLNet
   pip install -U openmim && mim install -e .
   ```
