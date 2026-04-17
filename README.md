@@ -64,11 +64,11 @@
   PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BACH.py ./swinTransformer_result/bach/workdir/epoch_x.pth 2 --work-dir ./swinTransformer_result/bach/workdir/testx
   ```
 - After downloading the fine-tuned MHCLNet model weights for the BACH and BRACS datasets, you can reproduce the results reported in the paper using the following evaluation command.
-- ### BACH
+  **BACH**
   ```shell
   PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BACH.py ./bach_96_38.pth 2 --work-dir ./swinTransformer_result/bach/workdir/test_bach
   ```
-- ### BRACS
+  **BRACS**
   ```shell
   PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BRACS.py ./bracs_64_38.pth 2 --work-dir ./swinTransformer_result/bach/workdir/test_bracs
   ```
