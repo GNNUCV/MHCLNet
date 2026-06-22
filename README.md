@@ -6,7 +6,7 @@
 
 - To prepare the environment, please follow the following instructions.
 
-  ```shell
+  ```bash
   conda create --name vittt python=3.9 -y
   conda activate vittt
   conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
@@ -49,7 +49,7 @@
 
 - The model can be trained with the following command.
 
-  ```shell
+  ```bash
   CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /home/bsj/data/BRACS_RoI_Normalized_512png2 --output /data/bsj/vittt/bracs/mhclnet --pretrained ./H-ViTTT-B-mesa.pth --batch-size 96 --freeze-backbone --amp --opts TRAIN.AUTO_RESUME False
 
   ```
@@ -58,7 +58,7 @@
 
 - The model can be tested with the following command,change the path below.
 
-  ```shell
+  ```bash
   CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /home/bsj/data/BRACS_RoI_Normalized_512png2 --output /data/bsj/vittt/bracs/MHCLNet/test_result --eval --eval-split test --resume /data/bsj/vittt/bracs/MHCLNet/h_vittt_base/default/max_acc.pth --batch-size 96 --freeze-backbone --no-model-ema --opts TRAIN.AUTO_RESUME False
   ```
 - After downloading the fine-tuned MHCLNet model weights for the BACH and BRACS datasets, you can reproduce the results reported in the paper using the following evaluation command.
@@ -66,11 +66,14 @@
   **BACH**
   
   Before executing the commands below, please modify the test weight path and the working output directory in vote_test_bach.py to the correct values.
-  ```shell
+  
+  ```bash
   python ./vittt/vote_test_bach.py
   ```
+  
   **BRACS**
-  ```shell
+  
+  ```bash
   CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /dataset_path --output ./test_result --eval --eval-split test --resume ./bracs_64_04.pth --batch-size 96 --freeze-backbone --no-model-ema --opts TRAIN.AUTO_RESUME False
 
   ```
