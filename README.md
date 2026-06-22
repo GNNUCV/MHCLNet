@@ -81,4 +81,4 @@
 
 ## Acknowledgement
 
-- This project is based on [ViTTT](https://github.com/LeapLabTHU/ViTTT). Thanks to the OpenMMLab team for their great work.
+- This project is based on [ViTTT](https://github.com/LeapLabTHU/ViTTT). Thanks to the LeapLab team for their great work.
