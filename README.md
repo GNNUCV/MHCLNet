@@ -7,27 +7,26 @@
 - To prepare the environment, please follow the following instructions.
 
   ```shell
-  conda create --name openmmlab python=3.8 -y
-  conda activate openmmlab
-  conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-  git clone https://github.com/GNNUCV/MHCLNet.git
-  cd MHCLNet
-  pip install -U openmim && mim install -e .
+  conda create --name vittt python=3.9 -y
+  conda activate vittt
+  conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
+  pip install numpy==1.26.4 scipy==1.13.1 scikit-learn==1.6.1 matplotlib==3.9.4 pillow==11.1.0
+  pip install timm==0.4.12 einops==0.8.2 yacs==0.1.8
   ```
 
 ## Datasets
 
-- The used datasets are provided in [BACH](https://iciar2018-challenge.grand-challenge.org/) and [BRACS](https://www.bracs.icar.cnr.it/). The train/test splits in both two datasets follow the official procedure. 
+- The used datasets are provided in [BACH](https://iciar2018-challenge.grand-challenge.org/) and [BRACS](https://www.bracs.icar.cnr.it/). The train/test splits in BRACS dataset follow the official procedure. 
 
 ## Model
 
-- We provide the original pretrained weights of Swin-L and the model weights of MHCLNet on the BACH and BRACS datasets. Please visit the following [link](https://pan.baidu.com/s/1nt9LOERcNLfcv-i3EdVPow?pwd=mlsf).
+- We provide the original pretrained weights of H-VITTT-B and the model weights of MHCLNet on the BACH and BRACS datasets. Please visit the following [link](https://pan.baidu.com/s/1AQ9D7v7yHGD8Mk1lflW46Q?pwd=mhcl 提取码: mhcl).
 
 ## Train
 
-- The MHCLNet model file is located at `/MHCLNet/mmpretrain/models/backbones/modules/MHCLNet.py`. MHCLNet.py has been integrated into swin_transformer_mhclnet.py.
+- The MHCLNet model file is located at `/MHCLNet/vittt/models/MHCLNet.py`. MHCLNet.py has been integrated into h_vittt_mhclnet.py.
 
-- If you want to train or test the model, please replace the contents of `/MHCLNet/mmpretrain/models/backbones/swin_transformer.py` with those in `/MHCLNet/mmpretrain/models/backbones/swin_transformer_mhclnet.py`. 
+- If you want to train or test the model, please replace the contents of `/MHCLNet/vittt/models/h_vittt.py` with those in `/MHCLNet/vittt/models/h_vittt_mhclnet.py`. 
 
 - Please make sure to back up the original SwinTransformer code in advance.
 - Before training, please update the pretrained weight path and dataset path in the configuration file. The dataset should be organized in the ImageNet format.
@@ -51,8 +50,8 @@
 - The model can be trained with the following command.
 
   ```shell
-  export CUBLAS_WORKSPACE_CONFIG=":4096:8"
-  PORT=29209 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_train.sh ./swin_large_16xb64_in1k_BACH.py 2 --work-dir ./swinTransformer_result/bach/workdir
+  CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /home/bsj/data/BRACS_RoI_Normalized_512png2 --output /data/bsj/vittt/bracs/mhclnet --pretrained ./H-ViTTT-B-mesa.pth --batch-size 96 --freeze-backbone --amp --opts TRAIN.AUTO_RESUME False
+
   ```
 
 ## Test
@@ -60,21 +59,23 @@
 - The model can be tested with the following command,change the path below.
 
   ```shell
-  export CUBLAS_WORKSPACE_CONFIG=":4096:8"
-  PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BACH.py ./swinTransformer_result/bach/workdir/epoch_x.pth 2 --work-dir ./swinTransformer_result/bach/workdir/testx
+  CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /home/bsj/data/BRACS_RoI_Normalized_512png2 --output /data/bsj/vittt/bracs/MHCLNet/test_result --eval --eval-split test --resume /data/bsj/vittt/bracs/MHCLNet/h_vittt_base/default/max_acc.pth --batch-size 96 --freeze-backbone --no-model-ema --opts TRAIN.AUTO_RESUME False
+
   ```
 - After downloading the fine-tuned MHCLNet model weights for the BACH and BRACS datasets, you can reproduce the results reported in the paper using the following evaluation command.
   
   **BACH**
+  Before executing the commands below, please modify the test weight path and the working output directory in vote_test_bach.py to the correct values.
   ```shell
-  PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BACH.py ./bach_96_38.pth 2 --work-dir ./swinTransformer_result/bach/workdir/test_bach
+  python ./vittt/vote_test_bach.py
   ```
   **BRACS**
   ```shell
-  PORT=28756 CUDA_VISIBLE_DEVICES=0,1 bash ./tools/dist_test.sh ./swin_large_16xb64_in1k_BRACS.py ./bracs_64_38.pth 2 --work-dir ./swinTransformer_result/bach/workdir/test_bracs
+  CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /dataset_path --output ./test_result --eval --eval-split test --resume ./bracs_64_04.pth --batch-size 96 --freeze-backbone --no-model-ema --opts TRAIN.AUTO_RESUME False
+
   ```
-- If you would like to learn more about the training or testing command arguments, please visit this [link](https://mmpretrain.readthedocs.io/zh-cn/latest/user_guides/train.html).
+- If you would like to learn more about the training or testing command arguments, please visit this [link](https://github.com/LeapLabTHU/ViTTT).
 
 ## Acknowledgement
 
-- This project is based on [MMPretrain](https://github.com/open-mmlab/mmpretrain). Thanks to the OpenMMLab team for their great work.
+- This project is based on [ViTTT](https://github.com/LeapLabTHU/ViTTT). Thanks to the OpenMMLab team for their great work.
