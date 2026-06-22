@@ -20,7 +20,7 @@
 
 ## Model
 
-- We provide the original pretrained weights of H-VITTT-B and the model weights of MHCLNet on the BACH and BRACS datasets. Please visit the following [link](https://pan.baidu.com/s/1AQ9D7v7yHGD8Mk1lflW46Q?pwd=mhcl 提取码: mhcl).
+- We provide the original pretrained weights of H-VITTT-B and the model weights of MHCLNet on the BACH and BRACS datasets. Please visit the following [link](https://pan.baidu.com/s/1AQ9D7v7yHGD8Mk1lflW46Q?pwd=mhcl#list/path=%2F).
 
 ## Train
 
@@ -28,7 +28,7 @@
 
 - If you want to train or test the model, please replace the contents of `/MHCLNet/vittt/models/h_vittt.py` with those in `/MHCLNet/vittt/models/h_vittt_mhclnet.py`. 
 
-- Please make sure to back up the original SwinTransformer code in advance.
+- Please make sure to back up the original H-ViTTT-B code in advance.
 - Before training, please update the pretrained weight path and dataset path in the configuration file. The dataset should be organized in the ImageNet format.
   ```shell
   Dataset_ROOT_DIR/
@@ -60,11 +60,11 @@
 
   ```shell
   CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /home/bsj/data/BRACS_RoI_Normalized_512png2 --output /data/bsj/vittt/bracs/MHCLNet/test_result --eval --eval-split test --resume /data/bsj/vittt/bracs/MHCLNet/h_vittt_base/default/max_acc.pth --batch-size 96 --freeze-backbone --no-model-ema --opts TRAIN.AUTO_RESUME False
-
   ```
 - After downloading the fine-tuned MHCLNet model weights for the BACH and BRACS datasets, you can reproduce the results reported in the paper using the following evaluation command.
   
   **BACH**
+  
   Before executing the commands below, please modify the test weight path and the working output directory in vote_test_bach.py to the correct values.
   ```shell
   python ./vittt/vote_test_bach.py
