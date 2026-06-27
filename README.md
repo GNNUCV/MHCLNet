@@ -11,7 +11,7 @@
   conda activate vittt
   conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
   pip install numpy==1.26.4 scipy==1.13.1 scikit-learn==1.6.1 matplotlib==3.9.4 pillow==11.1.0
-  pip install timm==0.4.12 einops==0.8.2 yacs==0.1.8
+  pip install timm==0.4.12 einops==0.8.2 yacs==0.1.8 termcolor
   ```
 
 ## Datasets
