@@ -97,7 +97,7 @@ def parse_option():
     return args, config
 
 
-def freeze_backbone_train_selected(model, logger, train_keywords=("head", "lora")):
+def freeze_backbone_train_selected(model, logger, train_keywords=("head", "mhcla")):
     """
     冻结原始骨干，只训练指定关键字包含的模块。
     """
@@ -435,7 +435,7 @@ def main():
         freeze_backbone_train_selected(
             model,
             logger,
-            train_keywords=("head", "lora")
+            train_keywords=("head", "mhcla")
         )
 
     model.cuda()
