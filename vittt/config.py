@@ -22,7 +22,7 @@ _C.BASE = ['']
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
 # Batch size for a single GPU, could be overwritten by command line argument
-_C.DATA.BATCH_SIZE = 32
+_C.DATA.BATCH_SIZE = 96
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.DATA_PATH = '/home/bsj/data/BRACS_RoI_Normalized_512png2'
 # Dataset name
@@ -46,13 +46,13 @@ _C.DATA.NUM_WORKERS = 8
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
 # Model type
-_C.MODEL.TYPE = 'h_vittt_base'
+_C.MODEL.TYPE = 'vittt_tiny'
 # Model name
-_C.MODEL.NAME = 'h_vittt_base'
+_C.MODEL.NAME = 'vittt_tiny'
 # Checkpoint to resume, could be overwritten by command line argument
 _C.MODEL.RESUME = ''
 # Drop path rate
-_C.MODEL.DROP_PATH_RATE = 0.6
+_C.MODEL.DROP_PATH_RATE = 0.1
 # Label Smoothing
 _C.MODEL.LABEL_SMOOTHING = 0.1
 
@@ -62,11 +62,10 @@ _C.MODEL.LABEL_SMOOTHING = 0.1
 _C.TRAIN = CN()
 _C.TRAIN.START_EPOCH = 0
 _C.TRAIN.EPOCHS = 100
-_C.TRAIN.WARMUP_EPOCHS = 15
+_C.TRAIN.WARMUP_EPOCHS = 10
 _C.TRAIN.COOLDOWN_EPOCHS = 0
-_C.TRAIN.WEIGHT_DECAY = 1e-4
-# For SGD, the real LR is linearly scaled in main_ema.py by batch_size / 512.
-# With batch_size=32, this becomes 0.003125; with batch_size=96, this becomes 0.009375.
+_C.TRAIN.WEIGHT_DECAY = 0.05
+# _C.TRAIN.BASE_LR = 5e-4
 _C.TRAIN.BASE_LR = 1e-3
 _C.TRAIN.WARMUP_LR = 5e-7
 _C.TRAIN.MIN_LR = 5e-6
@@ -90,10 +89,10 @@ _C.TRAIN.LR_SCHEDULER.DECAY_RATE = 0.1
 
 # Optimizer
 _C.TRAIN.OPTIMIZER = CN()
-_C.TRAIN.OPTIMIZER.NAME = 'sgd'
-# Optimizer Epsilon, kept for compatibility. It is not used by SGD.
+_C.TRAIN.OPTIMIZER.NAME = 'adamw'
+# Optimizer Epsilon
 _C.TRAIN.OPTIMIZER.EPS = 1e-8
-# Optimizer Betas, kept for compatibility. It is not used by SGD.
+# Optimizer Betas
 _C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999)
 # SGD momentum
 _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
@@ -103,23 +102,23 @@ _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
 # -----------------------------------------------------------------------------
 _C.AUG = CN()
 # Color jitter factor
-_C.AUG.COLOR_JITTER = 0.2
+_C.AUG.COLOR_JITTER = 0.4
 # Use AutoAugment policy. "v0" or "original"
-_C.AUG.AUTO_AUGMENT = 'rand-m5-mstd0.5-inc1'
+_C.AUG.AUTO_AUGMENT = 'rand-m9-mstd0.5-inc1'
 # Random erase prob
-_C.AUG.REPROB = 0.1
+_C.AUG.REPROB = 0.25
 # Random erase mode
 _C.AUG.REMODE = 'pixel'
 # Random erase count
 _C.AUG.RECOUNT = 1
 # Mixup alpha, mixup enabled if > 0
-_C.AUG.MIXUP = 0.0
+_C.AUG.MIXUP = 0.8
 # Cutmix alpha, cutmix enabled if > 0
-_C.AUG.CUTMIX = 0.0
+_C.AUG.CUTMIX = 1.0
 # Cutmix min/max ratio, overrides alpha and enables cutmix if set
 _C.AUG.CUTMIX_MINMAX = None
 # Probability of performing mixup or cutmix when either/both is enabled
-_C.AUG.MIXUP_PROB = 0.0
+_C.AUG.MIXUP_PROB = 1.0
 # Probability of switching to cutmix when both mixup and cutmix enabled
 _C.AUG.MIXUP_SWITCH_PROB = 0.5
 # How to apply mixup/cutmix params. Per "batch", "pair", or "elem"
@@ -145,7 +144,7 @@ _C.TAG = 'default'
 # Frequency to save checkpoint
 _C.SAVE_FREQ = 1
 # Frequency to logging info
-_C.PRINT_FREQ = 50
+_C.PRINT_FREQ = 100
 # Fixed random seed
 _C.SEED = 0
 # Perform evaluation only, overwritten by command line argument
