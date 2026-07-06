@@ -33,13 +33,19 @@ from utils_ema import (
 
 import warnings
 warnings.filterwarnings("ignore")
+# seed = 42
+# print(seed)
+# np.random.seed(seed)
+# torch.manual_seed(seed)
+# torch.cuda.manual_seed(seed)
+# torch.cuda.manual_seed_all(seed)
+# torch.backends.cudnn.deterministic = True
 
 try:
     from openpyxl import Workbook, load_workbook
 except ImportError:
     Workbook = None
     load_workbook = None
-
 
 def parse_option():
     parser = argparse.ArgumentParser("ViT^3 training and evaluation script", add_help=False)
@@ -81,7 +87,7 @@ def parse_option():
     parser.add_argument("--eval-split", type=str, default="val", choices=["val", "test"],
                         help="Evaluation split, choose val or test.")
 
-    # 默认关闭 EMA。你现在不用 EMA，所以不会打印 EMA 验证信息。
+    # ???? EMA?????? EMA??????? EMA ?????
     parser.add_argument("--model-ema", dest="model_ema", action="store_true", default=False,
                         help="Enable tracking moving average of model weights")
     parser.add_argument("--no-model-ema", dest="model_ema", action="store_false",
@@ -99,7 +105,7 @@ def parse_option():
 
 def freeze_backbone_train_selected(model, logger, train_keywords=("head", "mhcla")):
     """
-    冻结原始骨干，只训练指定关键字包含的模块。
+    ?????????????????????
     """
     for name, param in model.named_parameters():
         param.requires_grad = False
@@ -123,7 +129,7 @@ def freeze_backbone_train_selected(model, logger, train_keywords=("head", "mhcla
 def _rankdata_average(values):
     """
     Tie-aware average ranks, 1-based.
-    用于无 sklearn 依赖地计算 AUC。
+    ??? sklearn ????? AUC?
     """
     values = np.asarray(values)
     order = np.argsort(values)
@@ -171,9 +177,9 @@ def safe_div(a, b):
 
 def compute_classification_metrics(y_true, y_pred, y_prob, num_classes):
     """
-    计算 Accuracy、Macro Precision、Macro Recall、Macro F1、Macro AUC 和混淆矩阵。
-    AUC 使用 one-vs-rest macro AUC。
-    如果某一类在当前 split 中没有正样本或负样本，则该类 AUC 记为 NaN，不参与 macro 平均。
+    ?? Accuracy?Macro Precision?Macro Recall?Macro F1?Macro AUC ??????
+    AUC ?? one-vs-rest macro AUC?
+    ???????? split ?????????????? AUC ?? NaN???? macro ???
     """
     y_true = np.asarray(y_true, dtype=np.int64)
     y_pred = np.asarray(y_pred, dtype=np.int64)
@@ -236,8 +242,8 @@ def compute_classification_metrics(y_true, y_pred, y_prob, num_classes):
 
 def gather_numpy_arrays(local_array):
     """
-    单卡时直接返回。
-    多卡时用 all_gather_object 收集不同长度的 numpy 数组。
+    ????????
+    ???? all_gather_object ??????? numpy ???
     """
     local_array = np.asarray(local_array)
 
@@ -260,8 +266,8 @@ def matrix_to_string(cm):
 
 def append_metrics_to_excel(excel_path, record, logger=None):
     """
-    把每个 epoch 的指标追加到 Excel。
-    如果没有 openpyxl，则自动写入同名 csv 作为兜底。
+    ??? epoch ?????? Excel?
+    ???? openpyxl???????? csv ?????
     """
     columns = [
         "epoch",
@@ -395,11 +401,23 @@ def main():
     # cudnn.benchmark = True
     # cudnn.deterministic = True
 
-    seed = config.SEED + dist.get_rank()
+    # seed = config.SEED + dist.get_rank()
+    #
+    # print(seed)
+    # np.random.seed(seed)
+    # torch.manual_seed(seed)
+    # torch.cuda.manual_seed(seed)
+    # torch.cuda.manual_seed_all(seed)
+    # torch.backends.cudnn.deterministic = True
+
+    seed = 2025
+    torch.cuda.manual_seed_all(seed)
+    torch.cuda.manual_seed(seed)
     torch.manual_seed(seed)
     np.random.seed(seed)
     cudnn.enabled = True
-    cudnn.benchmark = True
+    cudnn.deterministic = True
+    # cudnn.benchmark = True
 
     linear_scaled_lr = config.TRAIN.BASE_LR * config.DATA.BATCH_SIZE * dist.get_world_size() / 512.0
     linear_scaled_warmup_lr = config.TRAIN.WARMUP_LR * config.DATA.BATCH_SIZE * dist.get_world_size() / 512.0
