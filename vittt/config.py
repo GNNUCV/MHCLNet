@@ -54,7 +54,7 @@ _C.MODEL.RESUME = ''
 # Drop path rate
 _C.MODEL.DROP_PATH_RATE = 0.1
 # Label Smoothing
-_C.MODEL.LABEL_SMOOTHING = 0.1
+_C.MODEL.LABEL_SMOOTHING = 0.05
 
 # -----------------------------------------------------------------------------
 # Training settings
@@ -157,8 +157,6 @@ _C.LOCAL_RANK = 0
 
 def _update_config_from_file(config, cfg_file):
     config.defrost()
-
-
     with open(cfg_file, 'r') as f:
         yaml_cfg = yaml.load(f, Loader=yaml.FullLoader)
 
