@@ -117,6 +117,7 @@ def build_transform(is_train, config):
             # replace RandomResizedCropAndInterpolation with
             # RandomCrop
             transform.transforms[0] = transforms.RandomCrop(config.DATA.IMG_SIZE, padding=4)
+            # transform.transforms[0] = transforms.RandomCrop(config.DATA.IMG_SIZE, padding=4)
         return transform
 
     t = []
@@ -127,14 +128,19 @@ def build_transform(is_train, config):
                 transforms.Resize(size, interpolation=_pil_interp(config.DATA.INTERPOLATION)),
                 # to maintain same ratio w.r.t. 224 images
             )
-            t.append(transforms.CenterCrop(config.DATA.IMG_SIZE))
+            t.append(transforms.TenCrop(config.DATA.IMG_SIZE))
+            # t.append(transforms.CenterCrop(config.DATA.IMG_SIZE))
+            t.append(transforms.Lambda(lambda crops: torch.stack(
+                [transforms.ToTensor()(crop) for crop in crops])))
+            t.append(transforms.Lambda(lambda crops: torch.stack(
+                [transforms.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD)(crop) for crop in crops])))
         else:
             t.append(
                 transforms.Resize((config.DATA.IMG_SIZE, config.DATA.IMG_SIZE),
                                   interpolation=_pil_interp(config.DATA.INTERPOLATION))
             )
 
-    t.append(transforms.ToTensor())
-    t.append(transforms.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD))
+            t.append(transforms.ToTensor())
+            t.append(transforms.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD))
     print(t)
     return transforms.Compose(t)
