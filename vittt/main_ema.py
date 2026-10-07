@@ -31,6 +31,15 @@ from utils_ema import (
     load_pretrained,
 )
 
+seed = 2025
+torch.cuda.manual_seed_all(seed)
+torch.cuda.manual_seed(seed)
+torch.manual_seed(seed)
+np.random.seed(seed)
+cudnn.enabled = True
+# cudnn.deterministic = True
+cudnn.benchmark = True
+
 import warnings
 warnings.filterwarnings("ignore")
 # seed = 42
@@ -103,7 +112,7 @@ def parse_option():
     return args, config
 
 
-def freeze_backbone_train_selected(model, logger, train_keywords=("head", "mhcla")):
+def freeze_backbone_train_selected(model, logger, train_keywords=("head",'mhcla')):
     """
     ?????????????????????
     """
@@ -410,14 +419,7 @@ def main():
     # torch.cuda.manual_seed_all(seed)
     # torch.backends.cudnn.deterministic = True
 
-    seed = 2025
-    torch.cuda.manual_seed_all(seed)
-    torch.cuda.manual_seed(seed)
-    torch.manual_seed(seed)
-    np.random.seed(seed)
-    cudnn.enabled = True
-    cudnn.deterministic = True
-    # cudnn.benchmark = True
+
 
     linear_scaled_lr = config.TRAIN.BASE_LR * config.DATA.BATCH_SIZE * dist.get_world_size() / 512.0
     linear_scaled_warmup_lr = config.TRAIN.WARMUP_LR * config.DATA.BATCH_SIZE * dist.get_world_size() / 512.0
@@ -453,7 +455,7 @@ def main():
         freeze_backbone_train_selected(
             model,
             logger,
-            train_keywords=("head", "mhcla")
+            train_keywords=("head",'mhcla')
         )
 
     model.cuda()
@@ -762,8 +764,13 @@ def validate(config, data_loader, model, logger, split_name="val"):
     for idx, (images, target) in enumerate(data_loader):
         images = images.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
+        # data
+        bs, ncrops, c, h, w = images.size()
+        images_flat = images.view(-1, c, h, w)  # (B*ncrops, C, H, W)
+        output_flat = model(images_flat)  # (B*ncrops, num_classes)
+        output = output_flat.view(bs, ncrops, -1).mean(dim=1)  # (B, num_classes)
 
-        output = model(images)
+        # output = model(images)
 
         loss = criterion(output, target)
 
