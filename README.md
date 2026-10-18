@@ -1,6 +1,6 @@
 # MHCLNet
 
-- A Multi-Scale Pathological Context Learning Network for Breast Cancer Histopathology Image Classification
+- Parameter-Efficient Breast Cancer Histopathology Image Classification via Multi-Scale Context Learning
 
 ## Installation 
 
