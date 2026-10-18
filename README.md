@@ -65,7 +65,7 @@
   
   **BACH**
 
-- Before executing the commands below, please modify the test weight path and the working output directory in vote_test_bach.py to the correct values.
+- Before executing the commands below, please modify the test weight path and the working output directory to the correct values.
   
   ```bash
   CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port=29501 ./vittt/main_ema.py --cfg ./vittt/cfgs/h_vittt_b.yaml --data-path /dataset_path --output ./test_result --eval --eval-split test --resume ./bach_95_00.pth --batch-size 64 --freeze-backbone --no-model-ema --opts TRAIN.AUTO_RESUME False
